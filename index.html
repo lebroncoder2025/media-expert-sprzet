@@ -102,16 +102,93 @@
     .footer { color: var(--muted); font-size: 12.5px; }
     .footer p { margin: 8px 0 0; }
     a { color: #5b3100; text-underline-offset: 2px; }
+    .section-head { position: relative; }
+    .section-toggle {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #f5efe4;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+    .section-toggle:hover { background: #ede3d4; }
+    .section-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .section-body[hidden] { display: none; }
+    .section-body { margin-top: 10px; }
     @media print {
       body { background: #fff; }
       .page { width: 100%; margin: 0; }
       .hero, section, .box, .promo { box-shadow: none; }
       a { color: #000; text-decoration: none; }
       .link-btn { color: #fff !important; }
+      .section-toggle { display: none; }
+      .section-body[hidden] { display: block !important; }
     }
     @media (max-width: 980px) {
       .summary-grid, .two-col, .promo-grid { grid-template-columns: 1fr; }
       .section-head { flex-direction: column; align-items: start; }
+      .section-toggle { margin-top: 4px; }
+    }
+    @media (max-width: 760px) {
+      .page { width: min(100% - 14px, 1240px); margin: 8px auto 18px; }
+      .hero, section { border-radius: 18px; }
+      .hero { padding: 20px 16px 18px; }
+      .hero h1 { font-size: clamp(24px, 8vw, 32px); }
+      .hero p { font-size: 14px; }
+      section { margin-top: 12px; padding: 14px 12px; }
+      .section-head h2 { font-size: 19px; }
+      .section-head p, .note, .desc, .box p, .promo p, .footer { font-size: 12px; }
+      .value { font-size: 19px; }
+      .pill { padding: 6px 9px; font-size: 11.5px; }
+      .box, .promo { padding: 12px; border-radius: 14px; }
+      table, thead, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tbody tr {
+        margin: 0 0 12px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fffdf8;
+        box-shadow: 0 8px 20px rgba(31, 27, 23, 0.05);
+      }
+      tbody td {
+        border-top: 0;
+        padding: 0;
+        margin-top: 8px;
+      }
+      tbody td:first-child {
+        margin-top: 0;
+      }
+      tbody td:not(:first-child)::before {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--muted);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        content: '';
+      }
+      tbody td:nth-child(2)::before { content: 'Model'; }
+      tbody td:nth-child(3)::before { content: 'Cena'; }
+      tbody td:nth-child(4)::before { content: 'Ocena / cechy'; }
+      tbody td:nth-child(5)::before { content: 'Link'; }
+      tbody td:nth-child(6)::before { content: 'Promocja'; }
+      .thumb-cell { width: auto; }
+      .thumb { width: 64px; height: 64px; border-radius: 12px; }
+      .model { font-size: 13.5px; }
+      .sub { font-size: 11.5px; }
+      .price { font-size: 15px; white-space: normal; }
+      .chip { font-size: 11px; padding: 4px 7px; }
+      .link-btn { width: 100%; min-width: 0; }
     }
     @media (max-width: 760px) {
       .page { width: min(100% - 14px, 1240px); margin: 8px auto 18px; }
@@ -920,5 +997,46 @@
       <p>Raport oparty jest na aktualnych kartach kategorii i kartach produktÃ³w Media Expert. Ceny z kodem, jeÅli sÄ pokazane, zostaÅy oznaczone. W miejscach, gdzie sklep nie pokazaÅ ceny w sposÃ³b wystarczajÄco pewny, pozostawiÅem uczciwy wpis âcena na karcieâ.</p>
     </section>
   </div>
+  <script>
+    (() => {
+      const sections = document.querySelectorAll('.page > section');
+      sections.forEach((section) => {
+        if (!section.querySelector('table')) {
+          return;
+        }
+
+        const head = section.querySelector('.section-head');
+        if (!head || section.querySelector('.section-toggle')) {
+          return;
+        }
+
+        const body = document.createElement('div');
+        body.className = 'section-body';
+        body.hidden = true;
+
+        const nodes = Array.from(section.childNodes);
+        nodes.forEach((node) => {
+          if (node !== head) {
+            body.appendChild(node);
+          }
+        });
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'section-toggle';
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.textContent = 'Rozwiń kategorię';
+        toggle.addEventListener('click', () => {
+          const open = body.hidden;
+          body.hidden = !open;
+          toggle.setAttribute('aria-expanded', String(open));
+          toggle.textContent = open ? 'Zwiń kategorię' : 'Rozwiń kategorię';
+        });
+
+        head.appendChild(toggle);
+        section.appendChild(body);
+      });
+    })();
+  </script>
 </body>
 </html>
